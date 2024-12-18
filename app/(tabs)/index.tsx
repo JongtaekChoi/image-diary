@@ -1,18 +1,16 @@
 import { Button, Image, StyleSheet, Text, TextInput, View } from "react-native";
 
+import ImageEditor from "@/components/ImageEditor";
 import React from "react";
 import { router } from "expo-router";
 import { useEdittingDiary } from "@/store/editting-diary";
 
 export default function App() {
   const { setDiaryText, diaryText, imageData } = useEdittingDiary();
-  const pushImageEditor = () => {
-    router.push("/image-editor");
-  };
 
   return (
     <View style={styles.container}>
-      <Image source={{ uri: imageData }} style={styles.image} />
+      <ImageEditor />
       <TextInput
         style={styles.input}
         placeholder="Write your diary here..."
@@ -20,8 +18,7 @@ export default function App() {
         value={diaryText}
         onChangeText={setDiaryText}
       />
-      <Button title="이미지 편집하기" onPress={pushImageEditor} />
-      <Button title="저장하기" onPress={pushImageEditor} />
+      <Button title="저장하기" onPress={() => {}} />
     </View>
   );
 }

@@ -6,7 +6,6 @@ import {
   Text,
   useWindowDimensions,
 } from "react-native";
-import Animated, { useSharedValue } from "react-native-reanimated";
 import {
   Canvas,
   Image,
@@ -15,9 +14,10 @@ import {
   Skia,
   useCanvasRef,
   useImage,
+  usePathValue,
 } from "@shopify/react-native-skia";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import React, { useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 
 import styled from "@emotion/native";
 import { useEdittingDiary } from "@/store/editting-diary";
@@ -36,7 +36,8 @@ export default function ImageEditor() {
   const canvasRef = useCanvasRef();
   const { width, height } = useWindowDimensions();
   const size = Math.min(width, height);
-  const path = useSharedValue(Skia.Path.Make());
+  const [paths, setPaths] = useState([Skia.Path.Make()]);
+  const path = paths.at(-1);
   const [brushColor, setBrushColor] = useState("black");
   const [brushWidth, setBrushWidth] = useState(4);
 
@@ -48,23 +49,23 @@ export default function ImageEditor() {
   const gesture = Gesture.Pan()
     .runOnJS(true)
     .onTouchesDown((e) => {
-      if (e.allTouches.length === 1) {
-        path.value.moveTo(e.allTouches[0].x, e.allTouches[0].y);
+      if (path && e.allTouches.length === 1) {
+        path.moveTo(e.allTouches[0].x, e.allTouches[0].y);
       }
     })
     .onTouchesMove((e) => {
-      if (e.allTouches.length === 1) {
-        path.value.lineTo(e.allTouches[0].x, e.allTouches[0].y);
+      if (path && e.allTouches.length === 1) {
+        path.lineTo(e.allTouches[0].x, e.allTouches[0].y);
       }
     })
     .onEnd((e) => {
-      console.log(path.value.toSVGString());
-      canvasRef?.current?.redraw();
+      if (path) {
+        setPaths([...paths, Skia.Path.Make()]);
+      }
     });
 
   const clearCanvas = () => {
-    path.value.reset();
-    canvasRef?.current?.redraw();
+    setPaths([Skia.Path.Make()]);
   };
 
   const { generateAIImage, imageData, diaryText, isLoading } =
@@ -78,24 +79,13 @@ export default function ImageEditor() {
           {image && (
             <Image image={image} width={size} height={size} x={0} y={0} />
           )}
-          <Path
-            paint={(() => {
-              const paint = Skia.Paint();
-              paint.setColor(Skia.Color(brushColor));
-              paint.setStyle(PaintStyle.Stroke);
-              paint.setStrokeWidth(brushWidth);
-              return paint;
-            })()}
-            path={path}
-          />
+          {paths.map((path, index) => {
+            return <Path key={index} path={path} paint={paint} />;
+          })}
         </Canvas>
       </GestureDetector>
       <Text>{diaryText}</Text>
-      <Button
-        disabled={true}
-        title="AI 이미지 생성"
-        onPress={generateAIImage}
-      />
+      <Button disabled={true} title="AI 이미지 생성" />
       {isLoading && <ActivityIndicator />}
       <Toolbar>
         <Button title="Black" onPress={() => setBrushColor("black")} />
@@ -108,21 +98,3 @@ export default function ImageEditor() {
     </Container>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: "column",
-    justifyContent: "space-between",
-  },
-  canvas: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  image: {
-    height: 200,
-    width: 200,
-    alignSelf: "center",
-    margin: 20,
-  },
-});
