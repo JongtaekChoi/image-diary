@@ -2,6 +2,9 @@ import "react-native-reanimated";
 
 import * as SplashScreen from "expo-splash-screen";
 
+import { Theme, ThemeProvider } from "@emotion/react";
+
+import Colors from "@/constants/Colors";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Stack } from "expo-router";
@@ -15,7 +18,6 @@ export {
 } from "expo-router";
 
 export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
   initialRouteName: "(tabs)",
 };
 
@@ -48,18 +50,24 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const theme: Theme = {
+    colors: colorScheme == "dark" ? Colors.dark : Colors.light,
+    size: {
+      pageHorizontalPadding: 16,
+    },
+  };
 
   return (
     <GestureHandlerRootView>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-        <Stack.Screen name="image-editor" options={{ presentation: "modal" }} />
-      </Stack>
+      <ThemeProvider theme={theme}>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        </Stack>
+      </ThemeProvider>
     </GestureHandlerRootView>
   );
 }

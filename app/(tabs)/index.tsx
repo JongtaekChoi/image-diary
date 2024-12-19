@@ -14,8 +14,7 @@ export default function App() {
   const { setDiaryText, diaryText, imageData } = useEdittingDiary();
 
   return (
-    <View style={styles.container}>
-      <ImageEditor />
+    <Container style={styles.container}>
       <TextInput
         style={styles.input}
         placeholder="Write your diary here..."
@@ -23,8 +22,9 @@ export default function App() {
         value={diaryText}
         onChangeText={setDiaryText}
       />
+      <ImageEditor />
       <Button title="저장하기" onPress={() => {}} />
-    </View>
+    </Container>
   );
 }
 

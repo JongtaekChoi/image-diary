@@ -16,6 +16,7 @@ import React, { useMemo, useRef, useState } from "react";
 import styled from "@emotion/native";
 import useDimensions from "@/hooks/useDimensions";
 import { useEdittingDiary } from "@/store/editting-diary";
+import { useTheme } from "@emotion/react";
 
 const Container = styled.View`
   flex: 1;
@@ -23,6 +24,11 @@ const Container = styled.View`
 `;
 
 const Toolbar = styled.View`
+  flex-direction: row;
+  justify-content: space-around;
+`;
+
+const SubToolBar = styled.View`
   flex-direction: row;
   justify-content: space-around;
 `;
@@ -46,7 +52,10 @@ function createPathPaint(): PathPaint {
 export default function ImageEditor() {
   const canvasRef = useCanvasRef();
   const { width, height } = useDimensions();
-  const size = Math.min(width - 40, height);
+  const {
+    size: { pageHorizontalPadding },
+  } = useTheme();
+  const size = Math.min(width - pageHorizontalPadding * 2, height);
   const [pathPaints, setPathPaints] = useState<Array<PathPaint>>([
     createPathPaint(),
   ]);
@@ -97,7 +106,6 @@ export default function ImageEditor() {
           })}
         </CanvasContainer>
       </GestureDetector>
-      <Text>{diaryText}</Text>
       <Button disabled={true} title="AI 이미지 생성" />
       {isLoading && <ActivityIndicator />}
       <Toolbar>
@@ -108,6 +116,7 @@ export default function ImageEditor() {
         <Button title="Thick" onPress={() => setBrushWidth(8)} />
         <Button title="Clear" onPress={clearCanvas} />
       </Toolbar>
+      <SubToolBar></SubToolBar>
     </Container>
   );
 }

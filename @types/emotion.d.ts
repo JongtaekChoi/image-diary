@@ -9,5 +9,8 @@ declare module "@emotion/react" {
       tabIconDefault: string;
       tabIconSelected: string;
     };
+    size: {
+      pageHorizontalPadding: number;
+    };
   }
 }
