@@ -2,8 +2,13 @@ import { Button, Image, StyleSheet, Text, TextInput, View } from "react-native";
 
 import ImageEditor from "@/components/ImageEditor";
 import React from "react";
-import { router } from "expo-router";
+import styled from "@emotion/native";
 import { useEdittingDiary } from "@/store/editting-diary";
+
+const Container = styled.View`
+  flex: 1;
+  justifycontent: space-between;
+`;
 
 export default function App() {
   const { setDiaryText, diaryText, imageData } = useEdittingDiary();

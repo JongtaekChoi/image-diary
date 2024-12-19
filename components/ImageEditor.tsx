@@ -1,25 +1,20 @@
-import {
-  ActivityIndicator,
-  Alert,
-  Button,
-  StyleSheet,
-  Text,
-  useWindowDimensions,
-} from "react-native";
+import { ActivityIndicator, Button, Text } from "react-native";
 import {
   Canvas,
   Image,
   PaintStyle,
   Path,
+  SkPaint,
+  SkPath,
   Skia,
   useCanvasRef,
   useImage,
-  usePathValue,
 } from "@shopify/react-native-skia";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import React, { useMemo, useRef, useState } from "react";
 
 import styled from "@emotion/native";
+import useDimensions from "@/hooks/useDimensions";
 import { useEdittingDiary } from "@/store/editting-diary";
 
 const Container = styled.View`
@@ -32,16 +27,33 @@ const Toolbar = styled.View`
   justify-content: space-around;
 `;
 
+const CanvasContainer = styled(Canvas)`
+  border: 1px solid black;
+`;
+
+interface PathPaint {
+  path: SkPath;
+  paint: SkPaint;
+}
+
+function createPathPaint(): PathPaint {
+  return {
+    path: Skia.Path.Make(),
+    paint: Skia.Paint(),
+  };
+}
+
 export default function ImageEditor() {
   const canvasRef = useCanvasRef();
-  const { width, height } = useWindowDimensions();
-  const size = Math.min(width, height);
-  const [paths, setPaths] = useState([Skia.Path.Make()]);
-  const path = paths.at(-1);
+  const { width, height } = useDimensions();
+  const size = Math.min(width - 40, height);
+  const [pathPaints, setPathPaints] = useState<Array<PathPaint>>([
+    createPathPaint(),
+  ]);
+  const { path, paint } = pathPaints.at(-1)!;
   const [brushColor, setBrushColor] = useState("black");
   const [brushWidth, setBrushWidth] = useState(4);
 
-  const paint = Skia.Paint();
   paint.setColor(Skia.Color(brushColor));
   paint.setStyle(PaintStyle.Stroke);
   paint.setStrokeWidth(brushWidth);
@@ -56,16 +68,17 @@ export default function ImageEditor() {
     .onTouchesMove((e) => {
       if (path && e.allTouches.length === 1) {
         path.lineTo(e.allTouches[0].x, e.allTouches[0].y);
+        setPathPaints([...pathPaints]);
       }
     })
     .onEnd((e) => {
       if (path) {
-        setPaths([...paths, Skia.Path.Make()]);
+        setPathPaints((paths) => [...paths, createPathPaint()]);
       }
     });
 
   const clearCanvas = () => {
-    setPaths([Skia.Path.Make()]);
+    setPathPaints([createPathPaint()]);
   };
 
   const { generateAIImage, imageData, diaryText, isLoading } =
@@ -75,14 +88,14 @@ export default function ImageEditor() {
   return (
     <Container>
       <GestureDetector gesture={gesture}>
-        <Canvas ref={canvasRef} style={{ width: size, height: size }}>
+        <CanvasContainer ref={canvasRef} style={{ width: size, height: size }}>
           {image && (
             <Image image={image} width={size} height={size} x={0} y={0} />
           )}
-          {paths.map((path, index) => {
+          {pathPaints.map(({ path, paint }, index) => {
             return <Path key={index} path={path} paint={paint} />;
           })}
-        </Canvas>
+        </CanvasContainer>
       </GestureDetector>
       <Text>{diaryText}</Text>
       <Button disabled={true} title="AI 이미지 생성" />

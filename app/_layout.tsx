@@ -2,12 +2,6 @@ import "react-native-reanimated";
 
 import * as SplashScreen from "expo-splash-screen";
 
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
-
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Stack } from "expo-router";
@@ -57,20 +51,15 @@ function RootLayoutNav() {
 
   return (
     <GestureHandlerRootView>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-          }}
-        >
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-          <Stack.Screen
-            name="image-editor"
-            options={{ presentation: "modal" }}
-          />
-        </Stack>
-      </ThemeProvider>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+        <Stack.Screen name="image-editor" options={{ presentation: "modal" }} />
+      </Stack>
     </GestureHandlerRootView>
   );
 }
