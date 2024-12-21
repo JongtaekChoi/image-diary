@@ -8,8 +8,10 @@ declare module "@emotion/react" {
       tint: string;
       tabIconDefault: string;
       tabIconSelected: string;
+      shadowColor: string;
     };
     size: {
+      fontSize: number;
       pageHorizontalPadding: number;
     };
   }

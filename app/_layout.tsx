@@ -54,6 +54,7 @@ function RootLayoutNav() {
     colors: colorScheme == "dark" ? Colors.dark : Colors.light,
     size: {
       pageHorizontalPadding: 16,
+      fontSize: 16,
     },
   };
 

@@ -10,9 +10,14 @@ import {
   useCanvasRef,
   useImage,
 } from "@shopify/react-native-skia";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import {
+  Gesture,
+  GestureDetector,
+  Pressable,
+} from "react-native-gesture-handler";
 import React, { useMemo, useRef, useState } from "react";
 
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import styled from "@emotion/native";
 import useDimensions from "@/hooks/useDimensions";
 import { useEdittingDiary } from "@/store/editting-diary";
@@ -25,6 +30,7 @@ const Container = styled.View`
 
 const Toolbar = styled.View`
   flex-direction: row;
+  align-items: center;
   justify-content: space-around;
 `;
 
@@ -109,6 +115,11 @@ export default function ImageEditor() {
       <Button disabled={true} title="AI 이미지 생성" />
       {isLoading && <ActivityIndicator />}
       <Toolbar>
+        <Pressable>
+          {(state) => (
+            <MaterialIcons name="border-color" size={24} color={brushColor} />
+          )}
+        </Pressable>
         <Button title="Black" onPress={() => setBrushColor("black")} />
         <Button title="Red" onPress={() => setBrushColor("red")} />
         <Button title="Blue" onPress={() => setBrushColor("blue")} />
