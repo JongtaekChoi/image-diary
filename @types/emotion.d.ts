@@ -9,6 +9,7 @@ declare module "@emotion/react" {
       tabIconDefault: string;
       tabIconSelected: string;
       shadowColor: string;
+      oppositeShadowColor: string;
     };
     size: {
       fontSize: number;
