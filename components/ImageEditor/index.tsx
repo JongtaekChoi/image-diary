@@ -82,8 +82,13 @@ export default function ImageEditor() {
     })
     .onTouchesMove((e) => {
       if (path && e.allTouches.length === 1) {
-        path.lineTo(e.allTouches[0].x, e.allTouches[0].y);
-        setPathPaints([...pathPaints]);
+        path.quadTo(
+          path.getLastPt().x,
+          path.getLastPt().y,
+          (path.getLastPt().x + e.allTouches[0].x) / 2,
+          (path.getLastPt().y + e.allTouches[0].y) / 2
+        );
+        canvasRef.current?.redraw();
       }
     })
     .onEnd((e) => {
