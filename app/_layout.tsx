@@ -67,6 +67,10 @@ function RootLayoutNav() {
           }}
         >
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="color-picker"
+            options={{ headerShown: false, presentation: "modal" }}
+          />
         </Stack>
       </ThemeProvider>
     </GestureHandlerRootView>

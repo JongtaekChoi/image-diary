@@ -15,12 +15,13 @@ import {
   GestureDetector,
   Pressable,
 } from "react-native-gesture-handler";
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import styled from "@emotion/native";
 import useDimensions from "@/hooks/useDimensions";
 import { useEdittingDiary } from "@/store/editting-diary";
+import { useRouter } from "expo-router";
 import { useTheme } from "@emotion/react";
 
 const Container = styled.View`
@@ -36,8 +37,16 @@ const Toolbar = styled.View`
 
 const SubToolBar = styled.View`
   flex-direction: row;
-  justify-content: space-around;
+  justify-content: flex-start;
 `;
+
+const ColorCircle = styled.View((props: { color: string }) => ({
+  width: 24,
+  height: 24,
+  borderRadius: 12,
+  backgroundColor: props.color,
+  margin: 4,
+}));
 
 const CanvasContainer = styled(Canvas)`
   border: 1px solid black;
@@ -46,6 +55,11 @@ const CanvasContainer = styled(Canvas)`
 interface PathPaint {
   path: SkPath;
   paint: SkPaint;
+}
+
+enum SubToolbarCategory {
+  BrushWidth,
+  Eraser,
 }
 
 function createPathPaint(): PathPaint {
@@ -57,7 +71,16 @@ function createPathPaint(): PathPaint {
 
 export default function ImageEditor() {
   const canvasRef = useCanvasRef();
+  const router = useRouter();
   const { width, height } = useDimensions();
+  const {
+    generateAIImage,
+    imageData,
+    diaryText,
+    isLoading,
+    brushColor,
+    setBrushColor,
+  } = useEdittingDiary();
   const {
     size: { pageHorizontalPadding },
   } = useTheme();
@@ -65,8 +88,9 @@ export default function ImageEditor() {
   const [pathPaints, setPathPaints] = useState<Array<PathPaint>>([
     createPathPaint(),
   ]);
+  const [activeSubToolbar, setActiveSubToolbar] =
+    useState<SubToolbarCategory>();
   const { path, paint } = pathPaints.at(-1)!;
-  const [brushColor, setBrushColor] = useState("black");
   const [brushWidth, setBrushWidth] = useState(4);
 
   paint.setColor(Skia.Color(brushColor));
@@ -101,8 +125,6 @@ export default function ImageEditor() {
     setPathPaints([createPathPaint()]);
   };
 
-  const { generateAIImage, imageData, diaryText, isLoading } =
-    useEdittingDiary();
   const image = useImage(imageData);
 
   return (
@@ -120,14 +142,15 @@ export default function ImageEditor() {
       <Button disabled={true} title="AI 이미지 생성" />
       {isLoading && <ActivityIndicator />}
       <Toolbar>
-        <Pressable>
+        <Pressable
+          onPress={() => {
+            router.push("/color-picker");
+          }}
+        >
           {(state) => (
             <MaterialIcons name="border-color" size={24} color={brushColor} />
           )}
         </Pressable>
-        <Button title="Black" onPress={() => setBrushColor("black")} />
-        <Button title="Red" onPress={() => setBrushColor("red")} />
-        <Button title="Blue" onPress={() => setBrushColor("blue")} />
         <Button title="Thin" onPress={() => setBrushWidth(2)} />
         <Button title="Thick" onPress={() => setBrushWidth(8)} />
         <Button title="Clear" onPress={clearCanvas} />
